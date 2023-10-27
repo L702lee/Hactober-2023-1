@@ -1,0 +1,126 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define ROWS 5
+#define COLS 5
+#define MINES 5
+
+char gameBoard[ROWS][COLS];
+char displayBoard[ROWS][COLS];
+int remainingTiles;
+
+void initializeGame() {
+    int i, j;
+
+    for (i = 0; i < ROWS; i++) {
+        for (j = 0; j < COLS; j++) {
+            gameBoard[i][j] = '0';
+            displayBoard[i][j] = ' ';
+        }
+    }
+
+    remainingTiles = ROWS * COLS - MINES;
+}
+
+void printBoard() {
+    int i, j;
+
+    printf("   ");
+    for (i = 0; i < COLS; i++) {
+        printf(" %d ", i);
+    }
+    printf("\n");
+
+    for (i = 0; i < ROWS; i++) {
+        printf(" %d |", i);
+        for (j = 0; j < COLS; j++) {
+            printf(" %c ", displayBoard[i][j]);
+        }
+        printf("|\n");
+    }
+    printf("\n");
+}
+
+void placeMines() {
+    srand(time(NULL));
+    int count = 0;
+
+    while (count < MINES) {
+        int x = rand() % ROWS;
+        int y = rand() % COLS;
+
+        if (gameBoard[x][y] != '*') {
+            gameBoard[x][y] = '*';
+            count++;
+
+            // Update neighboring tiles
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    int newX = x + i;
+                    int newY = y + j;
+
+                    if (newX >= 0 && newX < ROWS && newY >= 0 && newY < COLS && gameBoard[newX][newY] != '*') {
+                        gameBoard[newX][newY]++;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void reveal(int x, int y) {
+    if (displayBoard[x][y] != ' ') {
+        return;
+    }
+
+    displayBoard[x][y] = gameBoard[x][y];
+    remainingTiles--;
+
+    if (gameBoard[x][y] == '0') {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                int newX = x + i;
+                int newY = y + j;
+
+                if (newX >= 0 && newX < ROWS && newY >= 0 && newY < COLS) {
+                    reveal(newX, newY);
+                }
+            }
+        }
+    }
+}
+
+int main() {
+    initializeGame();
+    placeMines();
+
+    printf("Welcome to Minesweeper!\n");
+    printBoard();
+
+    int x, y;
+
+    while (remainingTiles > 0) {
+        printf("Enter the row and column to uncover (e.g., 1 2): ");
+        scanf("%d %d", &x, &y);
+
+        if (x < 0 || x >= ROWS || y < 0 || y >= COLS) {
+            printf("Invalid input. Try again.\n");
+            continue;
+        }
+
+        if (gameBoard[x][y] == '*') {
+            printf("Game Over! You hit a mine.\n");
+            break;
+        } else {
+            reveal(x, y);
+            printBoard();
+        }
+    }
+
+    if (remainingTiles == 0) {
+        printf("Congratulations! You won!\n");
+    }
+
+    return 0;
+}
