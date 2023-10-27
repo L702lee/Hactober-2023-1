@@ -1,0 +1,109 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+
+class Character {
+public:
+    Character(std::string name, int health, int attack) : name(name), health(health), attack(attack) {}
+
+    void takeDamage(int damage) {
+        health -= damage;
+    }
+
+    bool isAlive() const {
+        return health > 0;
+    }
+
+    int getAttack() const {
+        return attack;
+    }
+
+    std::string getName() const {
+        return name;
+    }
+
+private:
+    std::string name;
+    int health;
+    int attack;
+};
+
+class Monster {
+public:
+    Monster(std::string name, int health, int attack) : name(name), health(health), attack(attack) {}
+
+    void takeDamage(int damage) {
+        health -= damage;
+    }
+
+    bool isAlive() const {
+        return health > 0;
+    }
+
+    int getAttack() const {
+        return attack;
+    }
+
+    std::string getName() const {
+        return name;
+    }
+
+private:
+    std::string name;
+    int health;
+    int attack;
+};
+
+void battle(Character& player, Monster& enemy) {
+    while (player.isAlive() && enemy.isAlive()) {
+        int playerDamage = player.getAttack();
+        int enemyDamage = enemy.getAttack();
+
+        std::cout << "You attack " << enemy.getName() << " for " << playerDamage << " damage.\n";
+        enemy.takeDamage(playerDamage);
+
+        if (!enemy.isAlive()) {
+            std::cout << "You defeated " << enemy.getName() << "!\n";
+            break;
+        }
+
+        std::cout << enemy.getName() << " attacks you for " << enemyDamage << " damage.\n";
+        player.takeDamage(enemyDamage);
+
+        if (!player.isAlive()) {
+            std::cout << "You were defeated by " << enemy.getName() << ". Game over!\n";
+            break;
+        }
+
+        std::cout << "Your HP: " << player.getName() << " - " << player.isAlive() << " HP\n";
+        std::cout << "Enemy HP: " << enemy.getName() << " - " << enemy.isAlive() << " HP\n";
+        std::cout << "-----------------------------------------\n";
+    }
+}
+
+int main() {
+    srand(static_cast<unsigned>(time(nullptr));
+
+    Character player("Hero", 100, 20);
+    Monster enemy("Dragon", 80, 15);
+
+    std::cout << "Welcome to the Text-Based RPG!\n";
+    std::cout << "You encounter a fearsome " << enemy.getName() << "!\n";
+
+    char choice;
+    while (player.isAlive() && enemy.isAlive()) {
+        std::cout << "What will you do? (a) Attack or (q) Quit: ";
+        std::cin >> choice;
+
+        if (choice == 'a') {
+            battle(player, enemy);
+        } else if (choice == 'q') {
+            std::cout << "You decided to quit the game. Goodbye!\n";
+            break;
+        } else {
+            std::cout << "Invalid choice. Try again.\n";
+        }
+    }
+
+    return 0;
+}
