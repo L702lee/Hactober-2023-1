@@ -1,0 +1,100 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define BOARD_SIZE 10
+#define NUM_SHIPS 5
+
+char playerBoard[BOARD_SIZE][BOARD_SIZE];
+char computerBoard[BOARD_SIZE][BOARD_SIZE];
+
+void initializeBoard(char board[BOARD_SIZE][BOARD_SIZE]) {
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            board[i][j] = ' ';
+        }
+    }
+}
+
+void printBoard(char board[BOARD_SIZE][BOARD_SIZE]) {
+    printf("   A B C D E F G H I J\n");
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        printf("%2d ", i + 1);
+        for (int j = 0; j < BOARD_SIZE; j++) {
+            printf("%c ", board[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int getRandomNumber(int min, int max) {
+    return min + rand() % (max - min + 1);
+}
+
+void placeShips(char board[BOARD_SIZE][BOARD_SIZE]) {
+    int ship;
+    for (ship = 1; ship <= NUM_SHIPS; ship++) {
+        int x, y;
+        do {
+            x = getRandomNumber(0, BOARD_SIZE - 1);
+            y = getRandomNumber(0, BOARD_SIZE - 1);
+        } while (board[x][y] != ' ');
+        board[x][y] = 'S';
+    }
+}
+
+int isHit(char board[BOARD_SIZE][BOARD_SIZE], int x, int y) {
+    return board[x][y] == 'S';
+}
+
+int main() {
+    srand(time(NULL));
+
+    initializeBoard(playerBoard);
+    initializeBoard(computerBoard);
+
+    printf("Welcome to Battleship!\n");
+    printf("You have 5 ships to sink on a 10x10 grid. Let's begin!\n");
+
+    placeShips(computerBoard);
+
+    int remainingShips = NUM_SHIPS;
+    int attempts = 0;
+
+    while (remainingShips > 0) {
+        printf("Your Turn: Enter coordinates (e.g., A3): ");
+        char input[3];
+        scanf("%s", input);
+
+        int x = input[1] - '1';
+        int y = input[0] - 'A';
+
+        if (x < 0 || x >= BOARD_SIZE || y < 0 || y >= BOARD_SIZE) {
+            printf("Invalid coordinates. Try again.\n");
+            continue;
+        }
+
+        if (isHit(computerBoard, x, y)) {
+            printf("You hit a ship!\n");
+            playerBoard[x][y] = 'X';
+            computerBoard[x][y] = 'X';
+            remainingShips--;
+        } else if (playerBoard[x][y] == 'X' || playerBoard[x][y] == 'O') {
+            printf("You've already shot there. Try again.\n");
+        } else {
+            printf("You missed.\n");
+            playerBoard[x][y] = 'O';
+        }
+
+        printf("Your Board:\n");
+        printBoard(playerBoard);
+        printf("Computer's Board:\n");
+        printBoard(computerBoard);
+
+        attempts++;
+    }
+
+    printf("Congratulations! You sank all the enemy ships in %d attempts!\n", attempts);
+
+    return 0;
+}
